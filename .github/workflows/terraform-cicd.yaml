@@ -20,12 +20,21 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
       - uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: 1.16.5
           terraform_wrapper: false
 
-      - uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+      - name: Terraform init
+        run: terraform init -input=false
+
+      - name: Terraform format and validate
+        run: |
+          terraform fmt -check -recursive
+          terraform validate
+
