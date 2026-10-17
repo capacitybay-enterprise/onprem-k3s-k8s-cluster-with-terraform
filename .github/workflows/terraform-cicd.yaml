@@ -1,0 +1,31 @@
+name: Terraform infra deployment
+
+on: 
+  push:
+    branch: [cicd]
+  pull_request:
+    branches: [cicd]
+
+
+    
+permissions:
+  id-token: write
+  contents: read
+
+
+jobs:
+   init:
+     name: terraform init & validate
+     runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v7
+
+       - uses: hashicorp/setup-terraform@v4
+         with:
+           terraform_version: 1.16.5
+           terraform_wrapper: false
+
+       - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
